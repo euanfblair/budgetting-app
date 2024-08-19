@@ -1,0 +1,18 @@
+# Ignore the compiled executable
+main
+tailwindcss
+
+# Ignore other build artifacts
+*.o
+*.out
+*.exe
+*.log
+
+# Ignore vendor dependencies
+/vendor/
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+

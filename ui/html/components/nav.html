@@ -1,0 +1,67 @@
+{{ define "nav" }}
+<header class="sticky top-0 z-50">
+    <nav class="bg-gray-800 w-full">
+        <div class="max-w-full px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <!-- Left section: Logo and Links -->
+                <div class="flex items-center space-x-4">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <img class="h-8 w-auto" src="/static/images/logo.png" alt="Your Company">
+                    </div>
+
+
+                    <div class="hidden sm:flex space-x-4">
+                        <a hx-get="/" hx-target="#body-content" hx-swap="innerHTML" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+                        <a href="/transactions" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Transactions</a>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex sm:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false" onclick="toggleMobileMenu()">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Right section: Login Image with Dropdown -->
+                <div class="relative ml-auto">
+                    <button type="button" class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+                        <span class="sr-only">Open user menu</span>
+                        <img class="h-8 w-8 rounded-full" src="/static/images/user-icon.png" alt="">
+                    </button>
+                    <!-- Dropdown -->
+                    <div id="user-dropdown" class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                        <a href="/user/profile" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">My Profile</a>
+                        <a class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1" onClick="openLogoutPopup()">Logout</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="/" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Home</a>
+                <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<script>
+    function toggleDropdown() {
+        var dropdown = document.getElementById("user-dropdown");
+        dropdown.classList.toggle("hidden");
+    }
+
+    function toggleMobileMenu() {
+        var menu = document.getElementById("mobile-menu");
+        menu.classList.toggle("hidden");
+    }
+</script>
+{{end}}
