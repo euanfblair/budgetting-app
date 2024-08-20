@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
 type User struct {
 	UserID       int
-	Username     string
+	FirstName    string
+	Surname      string
 	Email        string
 	PasswordHash string
 	CreatedAt    time.Time
@@ -21,10 +21,10 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (m *UserModel) Insert(username, email string, password []byte) error {
-	stmt := `INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)`
+func (m *UserModel) Insert(firstName, surname, email string, password []byte) error {
+	stmt := `INSERT INTO users (first_name, surname, email, password_hash) VALUES ($1, $2, $3, $4)`
 
-	_, err := m.DB.Exec(stmt, username, email, password)
+	_, err := m.DB.Exec(stmt, firstName, surname, email, password)
 	if err != nil {
 		return err
 	}
@@ -32,87 +32,49 @@ func (m *UserModel) Insert(username, email string, password []byte) error {
 	return nil
 }
 
-func (m *UserModel) Validate(username, email string) bool {
-	stmt := `SELECT * FROM users WHERE username = $1 OR email = $2`
-
-	rows, err := m.DB.Query(stmt, username, email)
+func (m *UserModel) ExistingEmail(email string) bool {
+	stmt := `SELECT * FROM users WHERE  email = $1`
+	rows, err := m.DB.Query(stmt, email)
 	if err != nil {
-		return false
+		return true
 	}
 	defer rows.Close()
 
 	if rows.Next() {
 		return true
 	}
-	return false
 
+	return false
 }
 
-func (m *UserModel) Login(username, inputPassword string) (int, error) {
+func (m *UserModel) Login(email string) (int, string) {
 	var storedHash string
 	var id int
-	stmt := `SELECT user_id, password_hash  FROM users WHERE username = $1 OR email = $1`
-	row := m.DB.QueryRow(stmt, username)
+	stmt := `SELECT user_id, password_hash  FROM users WHERE email = $1`
+	row := m.DB.QueryRow(stmt, email)
 	err := row.Scan(&id, &storedHash)
 	if errors.Is(err, sql.ErrNoRows) {
-		return 0, err
+		return 0, ""
 	}
 	if err != nil {
 		fmt.Println("Database error:", err)
-		return 0, err
+		return 0, ""
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(inputPassword))
-	if err != nil {
-		fmt.Println(err)
-		return 0, err
-	}
-
-	return id, nil
+	return id, storedHash
 }
 
-func (m *UserModel) GetUserProfile(id int) []string {
-	userData := make([]string, 2)
-
-	stmt := `SELECT username, email  FROM users WHERE user_id = $1`
-	row := m.DB.QueryRow(stmt, id)
-	err := row.Scan(&userData[0], &userData[1])
+func (m *UserModel) GetCurrentUser(userid int) []string {
+	var first_name, surname, email string
+	stmt := `SELECT first_name, surname, email FROM users WHERE  user_id = $1`
+	row := m.DB.QueryRow(stmt, userid)
+	err := row.Scan(&first_name, &surname, &email)
 	if err != nil {
-		fmt.Println("Database error:", err)
-		return nil
+		fmt.Println(err.Error())
 	}
-	return userData
-}
-
-func (m *UserModel) UpdatePassword(id int, newPassword []byte) error {
-	stmt := `UPDATE users SET password_hash = $1, updated_at = $2 where user_id = $3`
-	_, err := m.DB.Exec(stmt, newPassword, time.Now(), id)
-	return err
-}
-
-func (m *UserModel) CheckPasswordMatches(id int, oldPasswordConfirm string) error {
-	var oldPassword string
-	stmt := `SELECT password_hash  FROM users WHERE user_id = $1`
-	row := m.DB.QueryRow(stmt, id)
-	err := row.Scan(&oldPassword)
-	if err != nil {
-		fmt.Println("Database error:", err)
-		return err
+	return []string{
+		first_name,
+		surname,
+		email,
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(oldPassword), []byte(oldPasswordConfirm))
-	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-		return err
-	} else if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *UserModel) DeleteUser(id int) error {
-	stmt := `DELETE FROM users WHERE user_id = $1`
-	_, err := m.DB.Exec(stmt, id)
-	if err != nil {
-		return err
-	}
-	return nil
 }

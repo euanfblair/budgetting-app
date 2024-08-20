@@ -6,10 +6,14 @@ import (
 	"euanfblair/budgeting-app/internal/handlers"
 	"euanfblair/budgeting-app/internal/models"
 	"fmt"
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/labstack/echo/v4"
+	session "github.com/spazzymoto/echo-scs-session"
 	"html/template"
 	"io"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -44,11 +48,18 @@ func main() {
 
 	defer db.Close()
 
+	sessionManager := scs.New()
+	sessionManager.Store = postgresstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := handlers.Application{
-		Users: &models.UserModel{DB: db},
+		Users:          &models.UserModel{DB: db},
+		SessionManager: sessionManager,
 	}
 
 	e := echo.New()
+
+	e.Use(session.LoadAndSave(sessionManager))
 
 	t := &Template{
 		template.Must(template.ParseGlob(templates)),

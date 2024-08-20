@@ -12,7 +12,7 @@
 
 
                     <div class="hidden sm:flex space-x-4">
-                        <a hx-get="/" hx-target="#body-content" hx-swap="innerHTML" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page">Home</a>
+                        <a href="/" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Home</a>
                         <a href="/transactions" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Transactions</a>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                     </button>
                 </div>
 
-                <!-- Right section: Login Image with Dropdown -->
+
                 <div class="relative ml-auto">
                     <button type="button" class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
                         <span class="sr-only">Open user menu</span>
@@ -35,9 +35,13 @@
                     </button>
                     <!-- Dropdown -->
                     <div id="user-dropdown" class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                        <a href="/user/profile" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">My Profile</a>
-                        <a class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1" onClick="openLogoutPopup()">Logout</a>
-
+                    {{ if .IsAuthenticated }}
+                        <a href="/user-profile" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">My Profile</a>
+                        <a class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-3" hx-post="/logout" hx-confirm="Are you sure you want to logout?">Logout</a>
+                    {{ else }}
+                        <a href="/signup" class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Signup</a>
+                        <a href="/login"  class="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Login</a>
+                    {{ end }}
                     </div>
                 </div>
             </div>
@@ -47,7 +51,7 @@
         <div class="sm:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="/" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Home</a>
-                <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
+                <a href="/Transactions" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Transactions</a>
             </div>
         </div>
     </nav>
