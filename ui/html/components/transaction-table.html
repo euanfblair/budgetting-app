@@ -76,18 +76,38 @@
                             <td class="px-6 py-3">
                                 £{{.Amount}}
                             </td>
+                            <td class="hidden transaction-id">
+                                {{.Id}}
+                            </td>
                             <td class="px-6 py-3">
                                 <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
                                     <img src="/static/images/edit-icon.png" class="w-8 h-8">
                                 </button>
                             </td>
                             <td class="px-6 py-3">
-                                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+                                <button type="button"
+                                        hx-delete="/transactions/delete"
+                                        hx-vals='{
+                                        "id": "{{.Id}}",
+                                        "tab": "{{$.ActiveTab}}"
+                                        }'
+                                        hx-target="#transaction-table"
+                                        hx-confirm="Are you sure you want to delete this transaction?"
+                                        class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
+                                >
                                     <img src="/static/images/delete-icon.png" class="w-8 h-8">
                                 </button>
                             </td>
                         </tr>
                     {{end}}
+                    <tr>
+                        <td class="px-6 py-3" colspan="4">Add Row</td>
+                        <td class="px-6 py-3">
+                            <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+                                <img src="/static/images/add-icon.png" class="w-8 h-8">
+                            </button>
+                        <td>
+                    </tr>
                     <tr class="border-t border-gray-200 font-bold">
                         <td class="px-6 py-3" colspan="4">Total</td>
                         <td class="px-6 py-3">

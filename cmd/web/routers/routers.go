@@ -29,4 +29,5 @@ func InitPutRoutes(e *echo.Echo, app *handlers.Application) {
 
 func InitDeleteRoutes(e *echo.Echo, app *handlers.Application) {
 	e.DELETE("/profile/delete", app.DeleteUser)
+	e.DELETE("/transactions/delete", app.DeleteTransaction)
 }

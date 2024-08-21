@@ -84,3 +84,25 @@ func filterTransactions(transactions []models.Transactions, filter string) ([]ta
 
 	return filteredData, totalAmount
 }
+
+func (app *Application) DeleteTransaction(c echo.Context) error {
+
+	data := TemplateData{}
+	transactionId := c.QueryParam("id")
+	data.ActiveTab = c.QueryParam("tab")
+	userID := app.getUserIdFromSession(c)
+
+	err := app.Transactions.DeleteTransaction(transactionId)
+	if err != nil {
+		return err
+	}
+
+	TransactionData := app.Transactions.GetUserTransactions(userID)
+
+	data.TableData = make([]tableData, len(TransactionData))
+
+	data.TableData, data.TotalAmount = filterTransactions(TransactionData, data.ActiveTab)
+
+	return c.Render(http.StatusOK, "transaction-table", data)
+
+}

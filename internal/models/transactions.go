@@ -45,3 +45,12 @@ func (t *TransactionModel) GetUserTransactions(Id int) []Transactions {
 
 	return transactions
 }
+
+func (t *TransactionModel) DeleteTransaction(id string) error {
+	stmt := `DELETE FROM transactions WHERE transactionid = $1`
+	_, err := t.DB.Exec(stmt, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
