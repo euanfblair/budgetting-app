@@ -1,0 +1,103 @@
+{{define "transaction-table"}}
+
+        <!-- Tabs -->
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" id="default-tab" role="tablist">
+            <li class="me-2" role="presentation">
+                <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "All" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+                        type="button"
+                        hx-get="/transactions/tab?tab=All"
+                        hx-target="#transaction-table"
+                >
+                    All
+                </button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Incoming" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+                        type="button"
+                        hx-get="/transactions/tab?tab=Incoming"
+                        hx-target="#transaction-table"
+                >
+                    Incoming
+                </button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Outgoing" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+                        type="button"
+                        hx-get="/transactions/tab?tab=Outgoing"
+                        hx-target="#transaction-table"
+                >
+                    Outgoing
+                </button>
+            </li>
+        </ul>
+
+        <!-- Table Container -->
+        <div class="relative overflow-y-auto max-h-[400px] mt-4">
+            <!-- Table -->
+            <table class="w-full text-sm text-left text-gray-500 bg-white border border-gray-200">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 z-10">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Name
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Incoming or Outgoing
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Date
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Amount
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Edit
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Delete
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="table-content">
+                {{if .TableData}}
+                    {{range .TableData}}
+                        <tr>
+                            <td class="px-6 py-3">
+                                {{.Name}}
+                            </td>
+                            <td class="px-6 py-3">
+                                {{.TransactionType}}
+                            </td>
+                            <td class="px-6 py-3">
+                                {{.Date}}
+                            </td>
+                            <td class="px-6 py-3">
+                                £{{.Amount}}
+                            </td>
+                            <td class="px-6 py-3">
+                                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+                                    <img src="/static/images/edit-icon.png" class="w-8 h-8">
+                                </button>
+                            </td>
+                            <td class="px-6 py-3">
+                                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+                                    <img src="/static/images/delete-icon.png" class="w-8 h-8">
+                                </button>
+                            </td>
+                        </tr>
+                    {{end}}
+                    <tr class="border-t border-gray-200 font-bold">
+                        <td class="px-6 py-3" colspan="4">Total</td>
+                        <td class="px-6 py-3">
+                            £{{.TotalAmount}}
+                        </td>
+                    </tr>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{{end}}
+

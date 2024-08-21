@@ -11,6 +11,8 @@ func InitGetRoutes(e *echo.Echo, app *handlers.Application) {
 	e.GET("/signup", app.Signup)
 	e.GET("/login", app.Login)
 	e.GET("/user-profile", app.Profile)
+	e.GET("/transactions", app.GetTransactions)
+	e.GET("/transactions/tab", app.FilteredTransactions)
 }
 
 func InitPostRoutes(e *echo.Echo, app *handlers.Application) {

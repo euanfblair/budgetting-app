@@ -11,7 +11,7 @@ import (
 type Application struct {
 	Users          *models.UserModel
 	SessionManager *scs.SessionManager
-	//Transactions   *models.TransactionModel
+	Transactions   *models.TransactionModel
 }
 
 type TemplateData struct {
@@ -20,6 +20,9 @@ type TemplateData struct {
 	ErrorMessage    string
 	IsAuthenticated bool
 	UserData        []string
+	ActiveTab       string
+	TableData       []tableData
+	TotalAmount     models.Money
 }
 
 // Home handler function

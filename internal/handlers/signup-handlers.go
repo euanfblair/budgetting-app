@@ -24,7 +24,7 @@ func (app *Application) Signup(c echo.Context) error {
 
 func (app *Application) CreateUser(c echo.Context) error {
 
-	firstname := c.FormValue("first-name")
+	firstname := c.FormValue("first-Name")
 	surname := c.FormValue("surname")
 	email := c.FormValue("email")
 	password := c.FormValue("password")

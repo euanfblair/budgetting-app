@@ -55,6 +55,7 @@ func main() {
 	app := handlers.Application{
 		Users:          &models.UserModel{DB: db},
 		SessionManager: sessionManager,
+		Transactions:   &models.TransactionModel{DB: db},
 	}
 
 	e := echo.New()
