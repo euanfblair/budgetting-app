@@ -69,7 +69,9 @@ func main() {
 
 	routers.InitGetRoutes(e, &app)
 	routers.InitPostRoutes(e, &app)
-	e.Logger.Fatal(e.Start(":4000"))
+	routers.InitPutRoutes(e, &app)
+	routers.InitDeleteRoutes(e, &app)
+	e.Logger.Fatal(e.StartTLS(":4000", "cert.pem", "key.pem"))
 }
 
 func openDB(dsn string) (*sql.DB, error) {

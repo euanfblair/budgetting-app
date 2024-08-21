@@ -14,7 +14,7 @@ func (app *Application) Login(c echo.Context) error {
 	}
 	data.IsAuthenticated = app.SessionManager.Exists(c.Request().Context(), "authUserID")
 	if data.IsAuthenticated {
-		return c.Redirect(http.StatusFound, "/")
+		return c.Redirect(http.StatusFound, "/user-profile")
 	}
 	return c.Render(http.StatusOK, "login", data)
 }
@@ -40,7 +40,7 @@ func (app *Application) ValidateUser(c echo.Context) error {
 	}
 
 	if strings.Compare(data.ErrorMessage, "") != 0 {
-		err := c.Render(http.StatusOK, "error-message", data)
+		err := c.Render(http.StatusBadRequest, "error-message", data)
 		return err
 	}
 

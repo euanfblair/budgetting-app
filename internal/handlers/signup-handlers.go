@@ -17,7 +17,7 @@ func (app *Application) Signup(c echo.Context) error {
 	}
 	data.IsAuthenticated = app.SessionManager.Exists(c.Request().Context(), "authUserID")
 	if data.IsAuthenticated {
-		return c.Redirect(http.StatusFound, "/")
+		return c.Redirect(http.StatusFound, "/user-profile")
 	}
 	return c.Render(http.StatusOK, "signup", data)
 }
@@ -53,7 +53,7 @@ func (app *Application) CreateUser(c echo.Context) error {
 	}
 
 	if strings.Compare(data.ErrorMessage, "") != 0 {
-		err := c.Render(http.StatusOK, "error-message", data)
+		err := c.Render(http.StatusBadRequest, "error-message", data)
 		return err
 	}
 
@@ -67,28 +67,6 @@ func (app *Application) CreateUser(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
 
-	return nil
-}
-
-func (app *Application) PasswordStrengthPost(c echo.Context) error {
-	passwordString := c.FormValue("password")
-
-	entropy := passwordvalidator.GetEntropy(passwordString)
-
-	strengthPercent := (entropy / minEntropyBits) * 100
-	if strengthPercent > 100 {
-		strengthPercent = 100
-	}
-
-	data := TemplateData{
-		PasswordEntropy: int(strengthPercent),
-	}
-
-	err := c.Render(http.StatusOK, "password-strength", data)
-	if err != nil {
-		c.Logger().Error(err)
-		return err
-	}
 	return nil
 }
 

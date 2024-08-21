@@ -1,12 +1,5 @@
 {{define "home"}}
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Title}}</title>
-    <link rel="stylesheet" href="/static/styles/output.css">
-</head>
+{{template "head"}}
 <body class="flex flex-col min-h-screen">
 {{ block "nav" . }}{{end}}
 <div id="body-content" class="flex-grow">
@@ -39,7 +32,7 @@
     </main>
 </div>
 {{ template "footer" . }}
-<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+{{template "htmxScripts"}}
 </body>
 </html>
 {{end}}

@@ -18,4 +18,13 @@ func InitPostRoutes(e *echo.Echo, app *handlers.Application) {
 	e.POST("/signup/password_check", app.PasswordStrengthPost)
 	e.POST("/login/validate", app.ValidateUser)
 	e.POST("/logout", app.Logout)
+	e.POST("/profile/password_check", app.PasswordStrengthPost)
+}
+
+func InitPutRoutes(e *echo.Echo, app *handlers.Application) {
+	e.PUT("/profile/change_password", app.ChangeUserPassword)
+}
+
+func InitDeleteRoutes(e *echo.Echo, app *handlers.Application) {
+	e.DELETE("/profile/delete", app.DeleteUser)
 }

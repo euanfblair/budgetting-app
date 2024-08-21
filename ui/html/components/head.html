@@ -1,0 +1,23 @@
+{{define "head"}}
+    <!doctype html>
+    <html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ .Title}}</title>
+        <link rel="stylesheet" href="/static/styles/output.css">
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+            }
+            #main-content {
+                flex: 1;
+            }
+        </style>
+    </head>
+{{end}}

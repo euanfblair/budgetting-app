@@ -1,25 +1,5 @@
 {{ define "signup" }}
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Title}}</title>
-    <link rel="stylesheet" href="/static/styles/output.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        #main-content {
-            flex: 1;
-        }
-    </style>
-</head>
+{{template "head"}}
 
 <body>
 {{ block "nav" . }}{{end}}
@@ -27,53 +7,59 @@
 <div id="main-content" class="flex-grow flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h2 class="text-center text-3xl font-extrabold text-gray-900">Sign Up</h2>
-        <form class="mt-8 space-y-6" hx-post="/signup/create" hx-target="#error" hx-swap="innerHTML">
-            <div id="error">
-                {{ template "error-message" }}
-            </div>
-            <div class="rounded-md shadow-sm space-y-4">
-                <div>
-                    <label for="first-name" class="sr-only">First Name</label>
-                    <input type="text" id="first-name" name="first-name" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="First Name" required>
+        <div hx-ext="response-targets">
+            <form
+                    class="mt-8 space-y-6"
+                    hx-post="/signup/create"
+                    hx-target-400="#error"
+                    hx-swap="innerHTML"
+            >
+                <div id="error">
+                    {{ template "error-message" }}
                 </div>
-                <div>
-                    <label for="surname" class="sr-only">Surname</label>
-                    <input type="text" id="surname" name="surname" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Surname" required>
-                </div>
-                <div>
-                    <label for="email" class="sr-only">Email</label>
-                    <input type="email" id="email" name="email" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email" required>
-                </div>
-                <div>
-                    <label for="password" class="sr-only">Password</label>
-                    <input type="password" id="password" name="password" hx-post="/signup/password_check" hx-trigger="keyup changed delay:0.1s" hx-target="#password-feedback" hx-swap="innerHTML" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" required>
-                </div>
-                <div>
-                    <label for="confirm-password" class="sr-only">Password</label>
-                    <input type="password" id="confirm-password" name="confirm-password" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Confirm Password" required>
-                </div>
-                <div id="password-feedback">
+                <div class="rounded-md shadow-sm space-y-4">
                     <div>
-                        <div id="password-entropy">
-                            <span class="text-base font-medium text-blue-700 dark:text-black">Password Strength</span>
-                            <span class="text-sm font-medium text-blue-700 dark:text-black">{{ .PasswordEntropy }}%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div class="{{ if lt .PasswordEntropy 100 }}  bg-red-600 {{ else }} bg-green-600 {{end}} h-2.5 rounded-full" style="width: {{.PasswordEntropy}}%"></div>
+                        <label for="first-name" class="sr-only">First Name</label>
+                        <input type="text" id="first-name" name="first-name" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="First Name" required>
+                    </div>
+                    <div>
+                        <label for="surname" class="sr-only">Surname</label>
+                        <input type="text" id="surname" name="surname" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Surname" required>
+                    </div>
+                    <div>
+                        <label for="email" class="sr-only">Email</label>
+                        <input type="email" id="email" name="email" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email" required>
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input type="password" id="password" name="password" hx-post="/signup/password_check" hx-trigger="keyup changed delay:0.1s" hx-target="#password-feedback" hx-swap="innerHTML" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" required>
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="sr-only">Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Confirm Password" required>
+                    </div>
+                    <div id="password-feedback">
+                        <div>
+                            <div id="password-entropy">
+                                <span class="text-base font-medium text-blue-700 dark:text-black">Password Strength</span>
+                                <span class="text-sm font-medium text-blue-700 dark:text-black">{{ .PasswordEntropy }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div class="{{ if lt .PasswordEntropy 100 }}  bg-red-600 {{ else }} bg-green-600 {{end}} h-2.5 rounded-full" style="width: {{.PasswordEntropy}}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Create Account
-            </button>
-        </form>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Create Account
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
 {{ template "footer" . }}
-
-<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+{{template "htmxScripts"}}
 </body>
 </html>
 {{ end }}

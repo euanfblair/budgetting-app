@@ -1,61 +1,47 @@
 {{ define "login" }}
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Title}}</title>
-    <link rel="stylesheet" href="/static/styles/output.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        #main-content {
-            flex: 1;
-        }
-    </style>
-</head>
+
+{{template "head"}}
 
 <body>
 {{ block "nav" . }}{{end}}
 
 <div id="main-content" class="flex-grow flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 class="text-center text-3xl font-extrabold text-gray-900">Sign Up</h2>
-        <form class="mt-8 space-y-6" hx-post="/login/validate" hx-target="#error" hx-swap="innerHTML">
-            <div id="error">
-                {{ template "error-message" }}
-            </div>
-            <div class="rounded-md shadow-sm space-y-4">
-                <div>
-                    <label for="email" class="sr-only">Email</label>
-                    <input type="email" id="email" name="email" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email" required>
+        <h2 class="text-center text-3xl font-extrabold text-gray-900">Login</h2>
+        <div hx-ext="response-targets">
+            <form
+                    class="mt-8 space-y-6"
+                    hx-post="/login/validate"
+                    hx-target-400="#error"
+                    hx-swap="innerHTML"
+            >
+                <div id="error">
+                    {{ template "error-message" }}
                 </div>
-                <div>
-                    <label for="password" class="sr-only">Password</label>
-                    <input type="password" id="password" name="password" hx-post="/login/password_check" hx-trigger="keyup changed delay:0.1s" hx-target="#password-feedback" hx-swap="innerHTML" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" required>
+                <div class="rounded-md shadow-sm space-y-4">
+                    <div>
+                        <label for="email" class="sr-only">Email</label>
+                        <input type="email" id="email" name="email" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email" required>
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input type="password" id="password" name="password" hx-post="/login/password_check" hx-trigger="keyup changed delay:0.1s" hx-target="#password-feedback" hx-swap="innerHTML" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" required>
+                    </div>
                 </div>
-            </div>
-            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Login
-            </button>
-            <p class="mt-10 text-center text-sm text-gray-500">
-                Not got an account?
-                <a href="/signup" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Signup Here</a>
-            </p>
-
-        </form>
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Login
+                </button>
+                <p class="mt-10 text-center text-sm text-gray-500">
+                    Not got an account?
+                    <a href="/signup" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Signup Here</a>
+                </p>
+            </form>
+        </div>
     </div>
 </div>
 
 {{ template "footer" . }}
-
-<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+{{template "htmxScripts"}}
 </body>
 </html>
 {{ end }}

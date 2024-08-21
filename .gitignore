@@ -8,6 +8,9 @@ tailwindcss
 *.exe
 *.log
 
+# Ignore https keys
+*.pem
+
 # Ignore vendor dependencies
 /vendor/
 

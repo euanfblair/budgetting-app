@@ -1,25 +1,5 @@
 {{define "profile"}}
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Title}}</title>
-    <link rel="stylesheet" href="/static/styles/output.css">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        #main-content {
-            flex: 1;
-        }
-    </style>
-</head>
+{{template "head"}}
 <body>
 {{ block "nav" . }}{{end}}
 
@@ -27,11 +7,6 @@
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h2 class="text-center text-3xl font-extrabold text-gray-900">Your Profile</h2>
         <form id="user-details" class="mt-8 space-y-6">
-            {{ if .ErrorMessage }}
-            <div id="delete-error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                <p>{{ .ErrorMessage }}</p>
-            </div>
-            {{end}}
             <div class="rounded-md shadow-sm space-y-4">
                 <div>
                     <label for="first-name" class="sr-only">First name</label>
@@ -47,12 +22,12 @@
                 </div>
             </div>
             <div class="mt-6 flex justify-center">
-                <button type="button" onclick="openModal()" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="button" onclick="toggleModal('modal-id')" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Change Password
                 </button>
             </div>
             <div class="mt-6 flex justify-center">
-                <button type="button" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button type="button" hx-delete="/profile/delete" hx-confirm="Are you sure you want to delete your account? This cannot be undone and you will lose all your data." class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Delete Account
                 </button>
             </div>
@@ -62,45 +37,10 @@
 
 {{ template "footer" . }}
 {{ template "changePasswordModal" }}
-<script src="https://unpkg.com/htmx.org@1.8.4"></script>
+{{template "htmxScripts"}}
 </body>
 </html>
 {{end}}
 
 
-{{ define "changePasswordModal" }}
-<section id="password-modal" class="bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-            <h2 class="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                Change Password
-            </h2>
-            <form class="mt-4 space-y-4 lg:mt-5 md:space-y-5" action="#">
-                <div>
-                    <label for="old-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                    <input type="password" name="old-password" id="old-password" class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="name@company.com" required="">
-                </div>
-                <div>
-                    <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Password</label>
-                    <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                </div>
-                <div>
-                    <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
-                    <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                </div>
-                <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Reset passwod</button>
-            </form>
-        </div>
-    </div>
-</section>
 
-<script>
-    function openModal() {
-        document.getElementById('password-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-        document.getElementById('passwordModal').classList.add('hidden');
-    }
-</script>
-{{ end }}

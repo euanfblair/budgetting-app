@@ -22,9 +22,9 @@ type UserModel struct {
 }
 
 func (m *UserModel) Insert(firstName, surname, email string, password []byte) error {
-	stmt := `INSERT INTO users (first_name, surname, email, password_hash) VALUES ($1, $2, $3, $4)`
+	stmt := `INSERT INTO users (first_name, surname, email, password_hash, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := m.DB.Exec(stmt, firstName, surname, email, password)
+	_, err := m.DB.Exec(stmt, firstName, surname, email, password, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -77,4 +77,33 @@ func (m *UserModel) GetCurrentUser(userid int) []string {
 		surname,
 		email,
 	}
+}
+
+func (m *UserModel) GetCurrentPassword(userid int) string {
+	var password string
+	stmt := `SELECT password_hash FROM users WHERE  user_id = $1`
+	row := m.DB.QueryRow(stmt, userid)
+	err := row.Scan(&password)
+	if err != nil {
+		return ""
+	}
+	return password
+}
+
+func (m *UserModel) UpdatePassword(userid int, password []byte) error {
+	stmt := `UPDATE users SET password_hash = $1, updated_at = $2 WHERE user_id = $3`
+	_, err := m.DB.Exec(stmt, password, time.Now(), userid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UserModel) DeleteUser(userid int) error {
+	stmt := `DELETE FROM users WHERE user_id = $1`
+	_, err := m.DB.Exec(stmt, userid)
+	if err != nil {
+		return err
+	}
+	return nil
 }
