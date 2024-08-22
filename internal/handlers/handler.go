@@ -27,6 +27,7 @@ type TemplateData struct {
 	AllCategories   []string
 	PageCount       string
 	PageIndex       string
+	ActiveMonth     string
 }
 
 // Home handler function

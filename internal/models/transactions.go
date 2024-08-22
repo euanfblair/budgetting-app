@@ -30,7 +30,7 @@ type TransactionModel struct {
 func (t *TransactionModel) GetUserTransactions(Id int) []Transactions {
 	var transactions []Transactions
 	var tx Transactions
-	stmt := `SELECT * FROM transactions WHERE user_id = $1 ORDER BY transactionid ASC`
+	stmt := `SELECT * FROM transactions WHERE user_id = $1 ORDER BY transaction_date DESC`
 	rows, err := t.DB.Query(stmt, Id)
 	if err != nil {
 		return nil

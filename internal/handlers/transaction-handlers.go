@@ -7,8 +7,19 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 )
+
+var transactionCache = struct {
+	sync.RWMutex
+	cache map[int][]models.Transactions
+}{cache: make(map[int][]models.Transactions)}
+
+var CategoriesCache = struct {
+	sync.RWMutex
+	cache map[int][]string
+}{cache: make(map[int][]string)}
 
 type tableData struct {
 	Id              int
@@ -17,6 +28,46 @@ type tableData struct {
 	Amount          models.Money
 	Date            string
 	Category        string
+}
+
+func (app *Application) getUserTransactions(userId int) ([]models.Transactions, error) {
+	transactionCache.RLock()
+	transactions, found := transactionCache.cache[userId]
+	transactionCache.RUnlock()
+
+	if found {
+		return transactions, nil
+	}
+
+	// Data not in cache, fetch from DB
+	transactions = app.Transactions.GetUserTransactions(userId)
+
+	// Update cache
+	transactionCache.Lock()
+	transactionCache.cache[userId] = transactions
+	transactionCache.Unlock()
+
+	return transactions, nil
+}
+
+func (app *Application) getUserCategories(userId int) ([]string, error) {
+	transactionCache.RLock()
+	categories, found := CategoriesCache.cache[userId]
+	transactionCache.RUnlock()
+
+	if found {
+		return categories, nil
+	}
+
+	// Data not in cache, fetch from DB
+	categories = app.Transactions.GetUniqueCategories(userId)
+
+	// Update cache
+	CategoriesCache.Lock()
+	CategoriesCache.cache[userId] = categories
+	CategoriesCache.Unlock()
+
+	return categories, nil
 }
 
 func (app *Application) GetTransactions(c echo.Context) error {
@@ -38,10 +89,11 @@ func (app *Application) FilteredTransactions(c echo.Context) error {
 	}
 	data.ActiveTab = c.QueryParam("tab")
 	userID := app.getUserIdFromSession(c)
-	data.AllCategories = app.Transactions.GetUniqueCategories(userID)
+	data.AllCategories, _ = app.getUserCategories(userID)
+	data.ActiveMonth = "1"
 
 	var pages = make([][]tableData, 1)
-	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory)
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
 
 	data.PageData = pages[0]
 	pageCount := len(pages)
@@ -58,9 +110,16 @@ func convertDate(s string) string {
 	return t.Format("2006-01-02")
 }
 
-func filterTransactions(transactions []models.Transactions, filter, category string) ([]tableData, models.Money) {
+func filterTransactions(transactions []models.Transactions, filter, category, timeframe string) ([]tableData, models.Money) {
 	var total int
 	var filteredData []tableData
+
+	baseDate := time.Now()
+
+	// Calculate the date range (one month before and after the baseDate)
+	oneMonthBefore := baseDate.AddDate(0, -1, 0)
+	threeMonthBefore := baseDate.AddDate(0, -3, 0)
+	oneYearBefore := baseDate.AddDate(0, -12, 0)
 
 	for _, transaction := range transactions {
 		// Check the filter condition
@@ -68,27 +127,39 @@ func filterTransactions(transactions []models.Transactions, filter, category str
 			(filter == "Outgoing" && !transaction.TransactionType) ||
 			(filter == "All") {
 
-			if (category == "All" || category == "") || category == transaction.Category {
+			date, err := time.Parse(time.RFC3339, transaction.TransactionDate)
+			if err != nil {
+				fmt.Println("Error parsing transaction date:", err)
+				continue
+			}
 
-				// Prepare tableData entry
-				entry := tableData{
-					Id:       transaction.TransactionId,
-					Name:     transaction.Name,
-					Amount:   models.MoneyConvert(transaction.Amount),
-					Date:     convertDate(transaction.TransactionDate),
-					Category: transaction.Category,
+			if (timeframe == "1" && date.After(oneMonthBefore)) ||
+				(timeframe == "3" && date.After(threeMonthBefore)) ||
+				(timeframe == "12" && date.After(oneYearBefore)) ||
+				(timeframe == "All") {
+
+				if (category == "All" || category == "") || category == transaction.Category {
+
+					// Prepare tableData entry
+					entry := tableData{
+						Id:       transaction.TransactionId,
+						Name:     transaction.Name,
+						Amount:   models.MoneyConvert(transaction.Amount),
+						Date:     convertDate(transaction.TransactionDate),
+						Category: transaction.Category,
+					}
+
+					if transaction.TransactionType {
+						entry.TransactionType = "Income"
+						total += transaction.Amount
+					} else {
+						entry.TransactionType = "Outgoing"
+						total -= transaction.Amount
+					}
+
+					// Add entry to filteredData
+					filteredData = append(filteredData, entry)
 				}
-
-				if transaction.TransactionType {
-					entry.TransactionType = "Income"
-					total += transaction.Amount
-				} else {
-					entry.TransactionType = "Outgoing"
-					total -= transaction.Amount
-				}
-
-				// Add entry to filteredData
-				filteredData = append(filteredData, entry)
 			}
 		}
 	}
@@ -101,9 +172,13 @@ func filterTransactions(transactions []models.Transactions, filter, category str
 
 func (app *Application) DeleteTransaction(c echo.Context) error {
 
-	data := TemplateData{}
+	data := TemplateData{
+		PageIndex: "0",
+	}
 	transactionId := c.QueryParam("id")
 	data.ActiveTab = c.QueryParam("tab")
+	data.ActiveMonth = c.QueryParam("month")
+	data.ActiveCategory = c.QueryParam("category")
 	userID := app.getUserIdFromSession(c)
 
 	err := app.Transactions.DeleteTransaction(transactionId)
@@ -111,28 +186,47 @@ func (app *Application) DeleteTransaction(c echo.Context) error {
 		return err
 	}
 
-	TransactionData := app.Transactions.GetUserTransactions(userID)
-	data.AllCategories = app.Transactions.GetUniqueCategories(userID)
+	transactionCache.Lock()
+	delete(transactionCache.cache, userID)
+	transactionCache.Unlock()
 
-	data.PageData = make([]tableData, len(TransactionData))
+	CategoriesCache.Lock()
+	delete(CategoriesCache.cache, userID)
+	CategoriesCache.Unlock()
 
-	data.PageData, data.TotalAmount = filterTransactions(TransactionData, data.ActiveTab, "")
+	data.AllCategories, _ = app.getUserCategories(userID)
+
+	var pages = make([][]tableData, 1)
+
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
+	if pages == nil {
+		pageCount := len(pages)
+		data.PageCount = strconv.Itoa(pageCount)
+		return c.Render(http.StatusOK, "table-body", data)
+	}
+
+	data.PageData = pages[0]
+	pageCount := len(pages)
+	data.PageCount = strconv.Itoa(pageCount - 1)
 
 	return c.Render(http.StatusOK, "table-body", data)
 
 }
 
 func (app *Application) FilterCategory(c echo.Context) error {
-	data := TemplateData{}
+	data := TemplateData{
+		PageIndex: "0",
+	}
 	data.ActiveCategory = c.QueryParam("categories")
 	data.ActiveTab = c.QueryParam("tab")
+	data.ActiveMonth = c.QueryParam("month")
 	userID := app.getUserIdFromSession(c)
 
-	data.AllCategories = app.Transactions.GetUniqueCategories(userID)
+	data.AllCategories, _ = app.getUserCategories(userID)
 
 	var pages = make([][]tableData, 1)
 
-	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory)
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
 	if pages == nil {
 		pageCount := len(pages)
 		data.PageCount = strconv.Itoa(pageCount)
@@ -152,20 +246,21 @@ func (app *Application) NextPage(c echo.Context) error {
 	data.PageIndex = c.QueryParam("page")
 	data.ActiveTab = c.QueryParam("tab")
 	data.ActiveCategory = c.QueryParam("category")
-	fmt.Println(data.ActiveCategory)
+	data.ActiveMonth = c.QueryParam("month")
 	userID := app.getUserIdFromSession(c)
 
-	data.AllCategories = app.Transactions.GetUniqueCategories(userID)
+	data.AllCategories, _ = app.getUserCategories(userID)
 
 	pageNumber, err := strconv.Atoi(data.PageIndex)
 	pageNumber += 1
 
 	if err != nil {
+		fmt.Println("Error parsing page number:", err)
 		return err
 	}
 
 	var pages = make([][]tableData, 1)
-	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory)
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
 
 	data.PageData = pages[pageNumber]
 
@@ -182,9 +277,10 @@ func (app *Application) PrevPage(c echo.Context) error {
 	data.PageIndex = c.QueryParam("page")
 	data.ActiveTab = c.QueryParam("tab")
 	data.ActiveCategory = c.QueryParam("category")
+	data.ActiveMonth = c.QueryParam("month")
 	userID := app.getUserIdFromSession(c)
 
-	data.AllCategories = app.Transactions.GetUniqueCategories(userID)
+	data.AllCategories, _ = app.getUserCategories(userID)
 
 	pageNumber, err := strconv.Atoi(data.PageIndex)
 	pageNumber -= 1
@@ -194,7 +290,7 @@ func (app *Application) PrevPage(c echo.Context) error {
 	}
 
 	var pages = make([][]tableData, 1)
-	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory)
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
 
 	data.PageData = pages[pageNumber]
 
@@ -206,15 +302,40 @@ func (app *Application) PrevPage(c echo.Context) error {
 
 }
 
-func (app *Application) getPages(userID int, activeTab, activeCategory string) ([][]tableData, models.Money) {
+func (app *Application) FilterTimeFrame(c echo.Context) error {
+	data := TemplateData{
+		PageIndex: "0",
+	}
+	data.ActiveMonth = c.QueryParam("time")
+	data.ActiveTab = c.QueryParam("tab")
+
+	userID := app.getUserIdFromSession(c)
+	data.AllCategories, _ = app.getUserCategories(userID)
+
+	var pages = make([][]tableData, 1)
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
+
+	data.PageData = pages[0]
+	data.PageIndex = "0"
+	pageCount := len(pages)
+	data.PageCount = strconv.Itoa(pageCount - 1)
+
+	return c.Render(http.StatusOK, "time-frame-header-table", data)
+
+}
+
+func (app *Application) getPages(userID int, activeTab, activeCategory, timeframe string) ([][]tableData, models.Money) {
 
 	const transactionsPerPage = 5
 
-	TransactionData := app.Transactions.GetUserTransactions(userID)
+	TransactionData, err := app.getUserTransactions(userID)
+	if err != nil {
+		return nil, 0
+	}
 
 	var pageData = make([]tableData, 5)
 
-	pageData, totalAmount := filterTransactions(TransactionData, activeTab, activeCategory)
+	pageData, totalAmount := filterTransactions(TransactionData, activeTab, activeCategory, timeframe)
 	if pageData == nil {
 		return nil, 0
 	}

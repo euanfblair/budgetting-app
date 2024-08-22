@@ -16,6 +16,7 @@ func InitGetRoutes(e *echo.Echo, app *handlers.Application) {
 	e.GET("/transactions/category", app.FilterCategory)
 	e.GET("/transactions/next", app.NextPage)
 	e.GET("/transactions/prev", app.PrevPage)
+	e.GET("/transactions/time", app.FilterTimeFrame)
 }
 
 func InitPostRoutes(e *echo.Echo, app *handlers.Application) {
