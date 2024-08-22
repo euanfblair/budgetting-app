@@ -18,9 +18,9 @@ type Transactions struct {
 	TransactionType bool
 	Amount          int
 	MoneyAmount     Money
-	Recurring       bool
 	TransactionDate string
 	UserId          int
+	Category        string
 }
 
 type TransactionModel struct {
@@ -36,7 +36,7 @@ func (t *TransactionModel) GetUserTransactions(Id int) []Transactions {
 		return nil
 	}
 	for rows.Next() {
-		err := rows.Scan(&tx.TransactionId, &tx.Name, &tx.TransactionType, &tx.Amount, &tx.Recurring, &tx.TransactionDate, &tx.UserId)
+		err := rows.Scan(&tx.TransactionId, &tx.Name, &tx.TransactionType, &tx.Amount, &tx.TransactionDate, &tx.UserId, &tx.Category)
 		if err != nil {
 			return nil
 		}
@@ -53,4 +53,23 @@ func (t *TransactionModel) DeleteTransaction(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (t *TransactionModel) GetUniqueCategories(id int) []string {
+	var categories = []string{"All"}
+	stmt := `SELECT DISTINCT category FROM transactions WHERE user_id = $1`
+	rows, err := t.DB.Query(stmt, id)
+	if err != nil {
+		return nil
+	}
+	var category string
+	for rows.Next() {
+		err = rows.Scan(&category)
+		if err != nil {
+			return nil
+		}
+		categories = append(categories, category)
+	}
+
+	return categories
 }

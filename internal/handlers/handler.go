@@ -21,8 +21,12 @@ type TemplateData struct {
 	IsAuthenticated bool
 	UserData        []string
 	ActiveTab       string
-	TableData       []tableData
+	PageData        []tableData
 	TotalAmount     models.Money
+	ActiveCategory  string
+	AllCategories   []string
+	PageCount       string
+	PageIndex       string
 }
 
 // Home handler function
