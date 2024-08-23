@@ -57,7 +57,7 @@ func (t *TransactionModel) DeleteTransaction(id string) error {
 
 func (t *TransactionModel) GetUniqueCategories(id int) []string {
 	var categories = []string{"All"}
-	stmt := `SELECT DISTINCT category FROM transactions WHERE user_id = $1`
+	stmt := `SELECT DISTINCT category FROM transactions WHERE user_id = $1 AND category <> 'All';`
 	rows, err := t.DB.Query(stmt, id)
 	if err != nil {
 		return nil
@@ -72,4 +72,16 @@ func (t *TransactionModel) GetUniqueCategories(id int) []string {
 	}
 
 	return categories
+}
+
+func (t *TransactionModel) CreateTransaction(name, transactionDate, category string, amount, userId int, transactionType bool) error {
+	stmt := `INSERT INTO transactions (name, type, amount, transaction_date, user_id, category ) 
+			VALUES ($1, $2, $3, $4, $5, $6)`
+
+	_, err := t.DB.Exec(stmt, name, transactionType, amount, transactionDate, userId, category)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

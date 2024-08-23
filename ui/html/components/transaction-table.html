@@ -38,16 +38,16 @@
     </div>
 </div>
 
-
+{{template "addTransaction" .}}
 
 {{end}}
 
 
 {{define "time-frame-header-table"}}
-<ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" id="default-tab" role="tablist">
+<ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" role="tablist">
     <li class="me-2" role="presentation">
         <button
-                class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveMonth "1" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+                class="inline-block p-4 border-b-2 rounded-t-lg {{if or (eq .ActiveMonth "1") (not .ActiveMonth) }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
                 type="button"
                 hx-get="/transactions/time?time=1"
                 hx-target="#time-frame"
@@ -94,6 +94,8 @@
 
 
 <!-- Table Container -->
+
+
 <div class="relative h-[650px] min-h-[650x] mt-4 overflow-y-auto"> <!-- Adjusted height -->
     <!-- Table -->
     <table class="w-full text-sm text-left text-gray-500 bg-white border border-gray-200">
@@ -211,10 +213,17 @@
                             </button>
                     </td>
                 </tr>
+        {{ else }}
+    <tr>
+        <td class="px-6 py-3" colspan="7">
+            No Transaction Data, add a transaction to get started
+        </td>
+    </tr>
+    {{end}}
     <tr>
         <td class="px-6 py-3" colspan="4">Add Row</td>
         <td class="px-6 py-3">
-            <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+            <button type="button"  onclick="toggleModal('modal-id')" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
                 <img src="/static/images/add-icon.png" class="w-8 h-8">
             </button>
         <td>
@@ -226,6 +235,7 @@
         </td>
     </tr>
 
-{{end}}
+
+
 
 {{end}}

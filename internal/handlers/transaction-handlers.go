@@ -7,8 +7,10 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 var transactionCache = struct {
@@ -85,17 +87,19 @@ func (app *Application) FilteredTransactions(c echo.Context) error {
 
 	data := TemplateData{
 		PageIndex: "0",
-		PageData:  make([]tableData, 5),
 	}
+
 	data.ActiveTab = c.QueryParam("tab")
 	userID := app.getUserIdFromSession(c)
 	data.AllCategories, _ = app.getUserCategories(userID)
-	data.ActiveMonth = "1"
 
 	var pages = make([][]tableData, 1)
 	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
+	if pages != nil {
+		data.PageData = make([]tableData, 0)
+		data.PageData = pages[0]
+	}
 
-	data.PageData = pages[0]
 	pageCount := len(pages)
 	data.PageCount = strconv.Itoa(pageCount - 1)
 
@@ -136,7 +140,7 @@ func filterTransactions(transactions []models.Transactions, filter, category, ti
 			if (timeframe == "1" && date.After(oneMonthBefore)) ||
 				(timeframe == "3" && date.After(threeMonthBefore)) ||
 				(timeframe == "12" && date.After(oneYearBefore)) ||
-				(timeframe == "All") {
+				(timeframe == "All" || timeframe == "") {
 
 				if (category == "All" || category == "") || category == transaction.Category {
 
@@ -315,7 +319,9 @@ func (app *Application) FilterTimeFrame(c echo.Context) error {
 	var pages = make([][]tableData, 1)
 	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
 
-	data.PageData = pages[0]
+	if pages != nil {
+		data.PageData = pages[0]
+	}
 	data.PageIndex = "0"
 	pageCount := len(pages)
 	data.PageCount = strconv.Itoa(pageCount - 1)
@@ -354,4 +360,79 @@ func (app *Application) getPages(userID int, activeTab, activeCategory, timefram
 	}
 
 	return Pages, totalAmount
+}
+
+func (app *Application) CreateTransaction(c echo.Context) error {
+	data := TemplateData{}
+	userID := app.getUserIdFromSession(c)
+
+	data.ActiveTab = c.QueryParam("tab")
+	data.ActiveMonth = c.QueryParam("1")
+
+	name := c.FormValue("name")
+	ticked := c.FormValue("incoming")
+	amount := c.FormValue("amount")
+	date := c.FormValue("date")
+	category := c.FormValue("category")
+
+	var incoming = false
+
+	value, err := strconv.ParseFloat(amount, 64)
+	if err != nil {
+		err := c.Render(http.StatusBadRequest, "error-message", "Error adding this amount, please try again in xx.xx format")
+		return err
+	}
+
+	switch {
+	case utf8.RuneCountInString(name) > 16:
+		data.ErrorMessage = "Name too long, max 16 characters"
+	case utf8.RuneCountInString(amount) > 15:
+		data.ErrorMessage = "Transaction amount too large, max 999,999,999,999.99"
+	case utf8.RuneCountInString(category) > 12:
+		data.ErrorMessage = "Category must be 12 characters or less"
+	}
+
+	if strings.Compare(data.ErrorMessage, "") != 0 {
+		err := c.Render(http.StatusBadRequest, "error-message", data)
+		return err
+	}
+
+	moneyAmount := int(value * 100)
+	if ticked == "on" {
+		incoming = true
+	}
+
+	err = app.Transactions.CreateTransaction(name, date, category, moneyAmount, userID, incoming)
+	if err != nil {
+		err := c.Render(http.StatusBadRequest, "error-message", "Error adding transaction, please try again later")
+		return err
+	}
+
+	transactionCache.Lock()
+	delete(transactionCache.cache, userID)
+	transactionCache.Unlock()
+
+	CategoriesCache.Lock()
+	delete(CategoriesCache.cache, userID)
+	CategoriesCache.Unlock()
+
+	data.AllCategories, _ = app.getUserCategories(userID)
+
+	fmt.Println(data.AllCategories)
+
+	var pages = make([][]tableData, 1)
+
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
+	if pages == nil {
+		pageCount := len(pages)
+		data.PageCount = strconv.Itoa(pageCount)
+		return c.Render(http.StatusOK, "table-body", data)
+	}
+
+	data.PageData = pages[0]
+	pageCount := len(pages)
+	data.PageCount = strconv.Itoa(pageCount - 1)
+
+	return c.Render(http.StatusOK, "table-body", data)
+
 }

@@ -25,6 +25,7 @@ func InitPostRoutes(e *echo.Echo, app *handlers.Application) {
 	e.POST("/login/validate", app.ValidateUser)
 	e.POST("/logout", app.Logout)
 	e.POST("/profile/password_check", app.PasswordStrengthPost)
+	e.POST("/transactions/add", app.CreateTransaction)
 }
 
 func InitPutRoutes(e *echo.Echo, app *handlers.Application) {
