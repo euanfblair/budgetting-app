@@ -85,3 +85,22 @@ func (t *TransactionModel) CreateTransaction(name, transactionDate, category str
 
 	return nil
 }
+
+func (t *TransactionModel) EditTransaction(name, transactionDate, category string, transactionId, amount, userId int, transactionType bool) error {
+	stmt := `UPDATE transactions
+			SET 
+				name = $1,
+				type = $2,
+				amount = $3,
+				transaction_date = $4,
+				category = $5
+			WHERE 
+    			user_id = $6 AND transactionId = $7;`
+
+	_, err := t.DB.Exec(stmt, name, transactionType, amount, transactionDate, category, userId, transactionId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

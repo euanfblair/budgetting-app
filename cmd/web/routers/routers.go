@@ -26,10 +26,12 @@ func InitPostRoutes(e *echo.Echo, app *handlers.Application) {
 	e.POST("/logout", app.Logout)
 	e.POST("/profile/password_check", app.PasswordStrengthPost)
 	e.POST("/transactions/add", app.CreateTransaction)
+
 }
 
 func InitPutRoutes(e *echo.Echo, app *handlers.Application) {
 	e.PUT("/profile/change_password", app.ChangeUserPassword)
+	e.PUT("/transactions/edit", app.EditTransaction)
 }
 
 func InitDeleteRoutes(e *echo.Echo, app *handlers.Application) {

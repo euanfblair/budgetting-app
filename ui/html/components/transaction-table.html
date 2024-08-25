@@ -1,5 +1,5 @@
 {{define "transaction-table"}}
-    <div id="transaction-type-tabs">
+    <div id="transaction-type-tabs"  x-data="{ showAddModal: false }">
         <ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" id="default-tab" role="tablist">
             <li class="me-2" role="presentation">
                 <button
@@ -36,9 +36,15 @@
     <div id="time-frame">
       {{template "time-frame-header-table" .}}
     </div>
-</div>
 
-{{template "addTransaction" .}}
+
+{{template "addTransaction" . }}
+{{template "editTransaction" . }}
+
+    </div>
+
+
+
 
 {{end}}
 
@@ -96,7 +102,8 @@
 <!-- Table Container -->
 
 
-<div class="relative h-[650px] min-h-[650x] mt-4 overflow-y-auto"> <!-- Adjusted height -->
+<div class="relative h-70vh mt-4 overflow-y-auto"> <!-- Adjusted height -->
+
     <!-- Table -->
     <table class="w-full text-sm text-left text-gray-500 bg-white border border-gray-200">
         <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 z-10">
@@ -138,7 +145,15 @@
 {{define "table-body"}}
 {{if .PageData}}
     {{range .PageData}}
-        <tr>
+        <tr class="transaction-row"
+             data-name="{{.Name}}"
+             data-transaction-type="{{.TransactionType}}"
+             data-date="{{.Date}}"
+             data-amount="{{.Amount}}"
+             data-category="{{.Category}}"
+             data-id="{{.Id}}"
+        >
+
             <td class="px-6 py-3">
                 {{.Name}}
             </td>
@@ -158,9 +173,12 @@
                 {{.Category}}
             </td>
             <td class="px-6 py-3">
-                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
+                        onclick="openEditModal(this)"
+                >
                     <img src="/static/images/edit-icon.png" class="w-8 h-8">
                 </button>
+
             </td>
             <td class="px-6 py-3">
                 <button type="button"
@@ -223,9 +241,11 @@
     <tr>
         <td class="px-6 py-3" colspan="4">Add Row</td>
         <td class="px-6 py-3">
-            <button type="button"  onclick="toggleModal('modal-id')" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+
+            <button type="button"  @click="showAddModal = true" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
                 <img src="/static/images/add-icon.png" class="w-8 h-8">
             </button>
+
         <td>
     </tr>
     <tr class="border-t border-gray-200 font-bold">
@@ -234,7 +254,63 @@
             £{{.TotalAmount}}
         </td>
     </tr>
+</div>
 
+
+<script>
+
+    document.getElementById('add-transaction-form').addEventListener('htmx:afterRequest', function(event) {
+
+        if (event.detail.successful) {
+            toggleModal('add-modal');
+        }
+    });
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('modalHandler', () => ({
+            showAddModal: false,
+            resetModal() {
+                this.showAddModal = false;
+                this.$refs.addModal.reset();
+            }
+        }));
+
+        document.getElementById('add-transaction-form').addEventListener('htmx:afterRequest', function(event) {
+            if (event.detail.successful) {
+                Alpine.store('modalHandler').resetModal();
+            }
+        });
+    });
+
+    function openEditModal(button) {
+
+        const row = button.closest('.transaction-row');
+
+        const name = row.getAttribute('data-name');
+        const transactionType = row.getAttribute('data-transaction-type');
+        const date = row.getAttribute('data-date');
+        const amount = row.getAttribute('data-amount');
+        const category = row.getAttribute('data-category');
+        const id = row.getAttribute('data-id');
+        toggleModal('modal-edit')
+
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-amount').value = amount;
+        document.getElementById('edit-date').value = date;
+        document.getElementById('edit-categories').value = category;
+        document.getElementById('edit-incoming').checked = (transactionType === 'Incoming');
+
+
+    }
+
+    function toggleModal(modalID){
+        document.getElementById(modalID).classList.toggle("hidden");
+        document.getElementById(modalID).querySelector('form').reset();
+        document.getElementById(modalID + "-backdrop").classList.toggle("hidden");
+    }
+
+</script>
 
 
 

@@ -154,7 +154,7 @@ func filterTransactions(transactions []models.Transactions, filter, category, ti
 					}
 
 					if transaction.TransactionType {
-						entry.TransactionType = "Income"
+						entry.TransactionType = "Incoming"
 						total += transaction.Amount
 					} else {
 						entry.TransactionType = "Outgoing"
@@ -367,7 +367,7 @@ func (app *Application) CreateTransaction(c echo.Context) error {
 	userID := app.getUserIdFromSession(c)
 
 	data.ActiveTab = c.QueryParam("tab")
-	data.ActiveMonth = c.QueryParam("1")
+	data.ActiveMonth = c.QueryParam("month")
 
 	name := c.FormValue("name")
 	ticked := c.FormValue("incoming")
@@ -379,8 +379,9 @@ func (app *Application) CreateTransaction(c echo.Context) error {
 
 	value, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
+		fmt.Println(data.ErrorMessage)
 		err := c.Render(http.StatusBadRequest, "error-message", "Error adding this amount, please try again in xx.xx format")
-		return err
+		fmt.Println(err)
 	}
 
 	switch {
@@ -407,6 +408,87 @@ func (app *Application) CreateTransaction(c echo.Context) error {
 		err := c.Render(http.StatusBadRequest, "error-message", "Error adding transaction, please try again later")
 		return err
 	}
+
+	transactionCache.Lock()
+	delete(transactionCache.cache, userID)
+	transactionCache.Unlock()
+
+	CategoriesCache.Lock()
+	delete(CategoriesCache.cache, userID)
+	CategoriesCache.Unlock()
+
+	data.AllCategories, _ = app.getUserCategories(userID)
+
+	fmt.Println(data.AllCategories)
+
+	var pages = make([][]tableData, 1)
+
+	pages, data.TotalAmount = app.getPages(userID, data.ActiveTab, data.ActiveCategory, data.ActiveMonth)
+	if pages == nil {
+		pageCount := len(pages)
+		data.PageCount = strconv.Itoa(pageCount)
+		return c.Render(http.StatusOK, "table-body", data)
+	}
+
+	data.PageData = pages[0]
+	pageCount := len(pages)
+	data.PageCount = strconv.Itoa(pageCount - 1)
+
+	return c.Render(http.StatusOK, "table-body", data)
+
+}
+
+func (app *Application) EditTransaction(c echo.Context) error {
+
+	data := TemplateData{}
+
+	data.ActiveTab = c.QueryParam("tab")
+	data.ActiveMonth = c.QueryParam("month")
+	
+	userID := app.getUserIdFromSession(c)
+	id := c.FormValue("id")
+	name := c.FormValue("name")
+	amount := c.FormValue("amount")
+	date := c.FormValue("date")
+	category := c.FormValue("category")
+	incoming := c.FormValue("incoming")
+
+	switch {
+	case utf8.RuneCountInString(name) > 16:
+		data.ErrorMessage = "Name too long, max 16 characters"
+	case utf8.RuneCountInString(amount) > 15:
+		data.ErrorMessage = "Transaction amount too large, max 999,999,999,999.99"
+	case utf8.RuneCountInString(category) > 12:
+		data.ErrorMessage = "Category must be 12 characters or less"
+	}
+
+	transactionType := false
+
+	if incoming == "on" {
+		transactionType = true
+	}
+
+	value, err := strconv.ParseFloat(amount, 64)
+	if err != nil {
+		fmt.Println(data.ErrorMessage)
+		err = c.Render(http.StatusBadRequest, "error-message", "Error adding this amount, please try again in xx.xx format")
+		if err != nil {
+			return err
+		}
+	}
+
+	transactionId, err := strconv.Atoi(id)
+	if err != nil {
+		err := c.Render(http.StatusBadRequest, "error-message", "Error try again later")
+		if err != nil {
+			return err
+		}
+	}
+
+	moneyAmount := int(value * 100)
+
+	err = app.Transactions.EditTransaction(name, date, category, transactionId, moneyAmount, userID, transactionType)
+	fmt.Println(err)
 
 	transactionCache.Lock()
 	delete(transactionCache.cache, userID)

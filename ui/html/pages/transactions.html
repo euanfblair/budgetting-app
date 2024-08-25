@@ -1,8 +1,8 @@
 {{define "transactions"}}
     {{template "head"}}
-    <body class="flex flex-col min-h-screen bg-gray-50">
+    <body hx-ext="response-targets" class="flex flex-col min-h-screen bg-gray-50">
     {{ block "nav" . }}{{end}}
-    <div id="body-content" class="flex-grow flex flex-col items-center justify-center p-6">
+    <div id="body-content" class="flex-grow flex flex-col items-center justify-center">
         {{if not .IsAuthenticated}}
             <main class="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
                 <p class="mb-6 text-lg font-semibold text-gray-700">You must be logged in to see your transactions.</p>
@@ -16,7 +16,7 @@
                 </div>
             </main>
         {{else}}
-            <main class="w-full max-w-4xl mx-auto p-6"
+            <main class="w-full max-w-4xl mx-auto "
                   hx-get="/transactions/tab?tab=All"
                   hx-target="#transaction-table"
                   hx-trigger="load"
