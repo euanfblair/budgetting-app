@@ -34,7 +34,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-const postgresCred = "postgres://postgres:Pass@localhost/budgetting_app?sslmode=disable"
+const postgresCred = "postgres://postgres:pass@localhost/transaction-tracker?sslmode=disable"
 
 const templates = "ui/html/**/*.html"
 

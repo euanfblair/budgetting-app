@@ -1,47 +1,47 @@
 {{define "transaction-table"}}
-    <div id="transaction-type-tabs"  x-data="{ showAddModal: false }">
-        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" id="default-tab" role="tablist">
-            <li class="me-2" role="presentation">
-                <button
-                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "All" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                        type="button"
-                        hx-get="/transactions/tab?tab=All"
-                        hx-target="#transaction-table"
-                >
-                    All
-                </button>
-            </li>
-            <li class="me-2" role="presentation">
-                <button
-                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Incoming" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                        type="button"
-                        hx-get="/transactions/tab?tab=Incoming"
-                        hx-target="#transaction-table"
-                >
-                    Incoming
-                </button>
-            </li>
-            <li class="me-2" role="presentation">
-                <button
-                        class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Outgoing" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                        type="button"
-                        hx-get="/transactions/tab?tab=Outgoing"
-                        hx-target="#transaction-table"
+<div id="transaction-type-tabs"  x-data="{ showAddModal: false }">
+    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center bg-white" id="default-tab" role="tablist">
+        <li class="me-2" role="presentation">
+            <button
+                    class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "All" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+            type="button"
+            hx-get="/transactions/tab?tab=All"
+            hx-target="#transaction-table"
+            >
+            All
+            </button>
+        </li>
+        <li class="me-2" role="presentation">
+            <button
+                    class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Incoming" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+            type="button"
+            hx-get="/transactions/tab?tab=Incoming"
+            hx-target="#transaction-table"
+            >
+            Incoming
+            </button>
+        </li>
+        <li class="me-2" role="presentation">
+            <button
+                    class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveTab "Outgoing" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
+            type="button"
+            hx-get="/transactions/tab?tab=Outgoing"
+            hx-target="#transaction-table"
 
-                >
-                    Outgoing
-                </button>
-            </li>
-        </ul>
+            >
+            Outgoing
+            </button>
+        </li>
+    </ul>
     <div id="time-frame">
-      {{template "time-frame-header-table" .}}
+        {{template "time-frame-header-table" .}}
     </div>
 
 
-{{template "addTransaction" . }}
-{{template "editTransaction" . }}
+    {{template "addTransaction" . }}
+    {{template "editTransaction" . }}
 
-    </div>
+</div>
 
 
 
@@ -54,52 +54,58 @@
     <li class="me-2" role="presentation">
         <button
                 class="inline-block p-4 border-b-2 rounded-t-lg {{if or (eq .ActiveMonth "1") (not .ActiveMonth) }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                type="button"
-                hx-get="/transactions/time?time=1"
-                hx-target="#time-frame"
-                hx-vals='"tab" : "{{.ActiveTab}}"'
+        type="button"
+        hx-get="/transactions/time?time=1"
+        hx-target="#time-frame"
+        hx-vals='"tab" : "{{.ActiveTab}}"'
 
         >
-            Past Month
+        Past Month
         </button>
     </li>
     <li class="me-2" role="presentation">
         <button
                 class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveMonth "3" }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                type="button"
-                hx-get="/transactions/time?time=3"
-                hx-target="#time-frame"
-                hx-vals='"tab" : "{{.ActiveTab}}"'
+        type="button"
+        hx-get="/transactions/time?time=3"
+        hx-target="#time-frame"
+        hx-vals='"tab" : "{{.ActiveTab}}"'
         >
-            Past 3 Months
+        Past 3 Months
         </button>
     </li>
     <li class="me-2" role="presentation">
         <button
                 class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveMonth "12"  }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                type="button"
-                hx-get="/transactions/time?time=12"
-                hx-target="#time-frame"
-                hx-vals='"tab" : "{{.ActiveTab}}"'
+        type="button"
+        hx-get="/transactions/time?time=12"
+        hx-target="#time-frame"
+        hx-vals='"tab" : "{{.ActiveTab}}"'
         >
-            Past Year
+        Past Year
         </button>
     </li>
     <li class="me-2" role="presentation">
         <button
                 class="inline-block p-4 border-b-2 rounded-t-lg {{if eq .ActiveMonth "All"  }} border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500 {{else}}hover:text-gray-600 hover:border-gray-300{{end}}"
-                type="button"
-                hx-get="/transactions/time?time=All"
-                hx-target="#time-frame"
-                hx-vals='"tab" : "{{.ActiveTab}}"'
+        type="button"
+        hx-get="/transactions/time?time=All"
+        hx-target="#time-frame"
+        hx-vals='"tab" : "{{.ActiveTab}}"'
         >
-            All Time
+        All Time
         </button>
     </li>
 </ul>
 
+<div id="table-head">
+{{template "table-head" .}}
+</div>
+{{end}}
 
 <!-- Table Container -->
+
+{{define "table-head" }}
 
 
 <div class="relative h-70vh mt-4 overflow-y-auto"> <!-- Adjusted height -->
@@ -126,7 +132,7 @@
                         hx-target="#table-content"
                 >
                     {{range .AllCategories}}
-                        <option>{{.}}</option>
+                    <option>{{.}}</option>
                     {{end}}
                 </select>
             </th>
@@ -144,120 +150,126 @@
 
 {{define "table-body"}}
 {{if .PageData}}
-    {{range .PageData}}
-        <tr class="transaction-row"
-             data-name="{{.Name}}"
-             data-transaction-type="{{.TransactionType}}"
-             data-date="{{.Date}}"
-             data-amount="{{.Amount}}"
-             data-category="{{.Category}}"
-             data-id="{{.Id}}"
+{{range .PageData}}
+<tr class="transaction-row"
+    data-name="{{.Name}}"
+    data-transaction-type="{{.TransactionType}}"
+    data-date="{{.Date}}"
+    data-amount="{{.Amount}}"
+    data-category="{{.Category}}"
+    data-id="{{.Id}}"
+>
+
+    <td class="px-6 py-3">
+        {{.Name}}
+    </td>
+    <td class="px-6 py-3">
+        {{.TransactionType}}
+    </td>
+    <td class="px-6 py-3">
+        {{.Date}}
+    </td>
+    <td class="px-6 py-3" >
+        £{{.Amount}}
+    </td>
+    <td class="hidden transaction-id">
+        {{.Id}}
+    </td>
+    <td class="px-6 py-3">
+        {{.Category}}
+    </td>
+    <td class="px-6 py-3">
+        <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
+                onclick="openEditModal(this)"
         >
+            <img src="/static/images/edit-icon.png" class="w-8 h-8">
+        </button>
 
-            <td class="px-6 py-3">
-                {{.Name}}
-            </td>
-            <td class="px-6 py-3">
-                {{.TransactionType}}
-            </td>
-            <td class="px-6 py-3">
-                {{.Date}}
-            </td>
-            <td class="px-6 py-3" >
-                £{{.Amount}}
-            </td>
-            <td class="hidden transaction-id">
-                {{.Id}}
-            </td>
-            <td class="px-6 py-3">
-                {{.Category}}
-            </td>
-            <td class="px-6 py-3">
-                <button type="button" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
-                        onclick="openEditModal(this)"
-                >
-                    <img src="/static/images/edit-icon.png" class="w-8 h-8">
-                </button>
-
-            </td>
-            <td class="px-6 py-3">
-                <button type="button"
-                        hx-delete="/transactions/delete"
-                        hx-vals='{
+    </td>
+    <td class="px-6 py-3">
+        <button type="button"
+                hx-delete="/transactions/delete"
+                hx-vals='{
                             "id": "{{.Id}}",
                             "tab": "{{$.ActiveTab}}",
                             "category" : "{{$.ActiveCategory}}",
                             "month": "{{$.ActiveMonth}}"
                         }'
-                        hx-target="#table-content"
-                        hx-confirm="Are you sure you want to delete this transaction?"
-                        class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
-                >
-                    <img src="/static/images/delete-icon.png" class="w-8 h-8">
-                </button>
-            </td>
-        </tr>
-    {{end}}
-            <tr>
-                <td class="px-6 py-3">
-                    <button class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100 mx-1 w-12 h-12
+                hx-target="#table-content"
+                hx-confirm="Are you sure you want to delete this transaction?"
+                class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100"
+        >
+            <img src="/static/images/delete-icon.png" class="w-8 h-8">
+        </button>
+    </td>
+</tr>
+{{end}}
+<tr>
+    <td class="px-6 py-3">
+        <button class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100 mx-1 w-12 h-12
                             {{if eq .PageIndex "0" }} hidden {{end}}"
-                            hx-get="/transactions/prev"
-                            hx-vals='{
-                            "page" : "{{.PageIndex}}",
-                            "tab" : "{{.ActiveTab}}",
-                            "category" : "{{.ActiveCategory}}",
-                            "month": "{{.ActiveMonth}}"
-                           }'
-                            hx-target="#table-content"
-                    >
-                        <img src="/static/images/prev.png" class="w-6 h-6">
-                    </button>
-                </td>
-                    <td colspan="5" class="px-6 py-3">
-                </td>
-                        <td class="px-6 py-3">
-                            <button class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100 mx-1 w-12 h-12
+        hx-get="/transactions/prev"
+        hx-vals='{
+        "page" : "{{.PageIndex}}",
+        "tab" : "{{.ActiveTab}}",
+        "category" : "{{.ActiveCategory}}",
+        "month": "{{.ActiveMonth}}"
+        }'
+        hx-target="#table-content"
+        >
+        <img src="/static/images/prev.png" class="w-6 h-6">
+        </button>
+    </td>
+    <td colspan="5" class="px-6 py-3">
+    </td>
+    <td class="px-6 py-3">
+        <button class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100 mx-1 w-12 h-12
                                     {{if or (eq .PageIndex .PageCount) (lt (len .PageData) 5 ) }} hidden {{end}}"
-                                    hx-get="/transactions/next"
-                                    hx-vals='{
+                hx-get="/transactions/next"
+                hx-vals='{
                                     "page" : "{{.PageIndex}}",
                                     "tab" : "{{.ActiveTab}}",
                                     "category" : "{{.ActiveCategory}}",
                                     "month": "{{.ActiveMonth}}"
                                     }'
-                                    hx-target="#table-content">
-                                <img src="/static/images/next.png" class="w-6 h-6">
-                            </button>
-                    </td>
-                </tr>
-        {{ else }}
-    <tr>
-        <td class="px-6 py-3" colspan="7">
-            No Transaction Data, add a transaction to get started
-        </td>
-    </tr>
-    {{end}}
-    <tr>
-        <td class="px-6 py-3" colspan="4">Add Row</td>
-        <td class="px-6 py-3">
+                hx-target="#table-content">
+            <img src="/static/images/next.png" class="w-6 h-6">
+        </button>
+    </td>
+</tr>
+{{ else }}
+<tr>
+    <td class="px-6 py-3" colspan="7">
+        No Transaction Data, add a transaction to get started
+    </td>
+</tr>
+{{end}}
+<tr>
+    <td class="px-6 py-3" colspan="4">Add Row</td>
+    <td class="px-6 py-3">
 
-            <button type="button"  @click="showAddModal = true" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
-                <img src="/static/images/add-icon.png" class="w-8 h-8">
-            </button>
+        <button type="button"  onclick="toggleModal('add-modal')" class="inline-flex items-center justify-center p-2 rounded border border-gray-300 bg-white hover:bg-gray-100">
+            <img src="/static/images/add-icon.png" class="w-8 h-8">
+        </button>
 
-        <td>
-    </tr>
-    <tr class="border-t border-gray-200 font-bold">
-        <td class="px-6 py-3" colspan="4">Total</td>
-        <td class="px-6 py-3">
-            £{{.TotalAmount}}
-        </td>
-    </tr>
+    <td>
+</tr>
+<tr class="border-t border-gray-200 font-bold">
+    <td class="px-6 py-3" colspan="4">Total</td>
+    <td class="px-6 py-3">
+        £{{.TotalAmount}}
+    </td>
+</tr>
 </div>
 
 
 <script>
+
+    const editAmountInput = document.getElementById('edit-amount');
+    const addAmountInput = document.getElementById('amount');
+    const addSelectElement = document.getElementById('add-categories-select')
+    const editSelectElement = document.getElementById('edit-categories-select')
+
 
     document.getElementById('add-transaction-form').addEventListener('htmx:afterRequest', function(event) {
 
@@ -266,21 +278,13 @@
         }
     });
 
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('modalHandler', () => ({
-            showAddModal: false,
-            resetModal() {
-                this.showAddModal = false;
-                this.$refs.addModal.reset();
-            }
-        }));
+    document.getElementById('edit-transaction-form').addEventListener('htmx:afterRequest', function(event) {
 
-        document.getElementById('add-transaction-form').addEventListener('htmx:afterRequest', function(event) {
-            if (event.detail.successful) {
-                Alpine.store('modalHandler').resetModal();
-            }
-        });
+        if (event.detail.successful) {
+            toggleModal('modal-edit');
+        }
     });
+
 
     function openEditModal(button) {
 
@@ -309,6 +313,48 @@
         document.getElementById(modalID).querySelector('form').reset();
         document.getElementById(modalID + "-backdrop").classList.toggle("hidden");
     }
+
+
+
+    function formatAmountInput(e) {
+        let value = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters except decimal point
+
+        // If there are multiple decimal points, keep only the first
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts.slice(1).join('');
+        }
+
+        // Limit to 2 decimal places
+        if (parts[1] && parts[1].length > 2) {
+            value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+        }
+
+        e.target.value = value;
+    }
+
+
+    function categoriesSelect(e) {
+
+        let closestContainer = e.target.closest('.w-full.mt-4');
+        if (closestContainer) {
+            let hiddenInput = closestContainer.querySelector('input[type="text"].hidden');
+            hiddenInput.value = e.target.value
+            console.log(hiddenInput.value)
+
+            if (e.target.value === "custom") {
+                hiddenInput.value = ""
+                hiddenInput.classList.remove('hidden');
+            }
+        }
+    }
+
+
+    editAmountInput.addEventListener('input', formatAmountInput);
+    addAmountInput.addEventListener('input', formatAmountInput);
+    addSelectElement.addEventListener('change', categoriesSelect)
+    editSelectElement.addEventListener('change', categoriesSelect)
+
 
 </script>
 

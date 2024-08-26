@@ -74,10 +74,13 @@ func (app *Application) getUserCategories(userId int) ([]string, error) {
 
 func (app *Application) GetTransactions(c echo.Context) error {
 	data := TemplateData{
-		Title: "Signup",
+		Title: "Transactions",
 	}
 
-	data.IsAuthenticated = app.SessionManager.Exists(c.Request().Context(), "authUserID")
+	IsAuthenticated := app.SessionManager.Exists(c.Request().Context(), "authUserID")
+	if !IsAuthenticated {
+		return c.Render(http.StatusOK, "not-auth", data)
+	}
 
 	data.ActiveTab = "All"
 	return c.Render(http.StatusOK, "transactions", data)
@@ -427,14 +430,14 @@ func (app *Application) CreateTransaction(c echo.Context) error {
 	if pages == nil {
 		pageCount := len(pages)
 		data.PageCount = strconv.Itoa(pageCount)
-		return c.Render(http.StatusOK, "table-body", data)
+		return c.Render(http.StatusOK, "table-head", data)
 	}
 
 	data.PageData = pages[0]
 	pageCount := len(pages)
 	data.PageCount = strconv.Itoa(pageCount - 1)
 
-	return c.Render(http.StatusOK, "table-body", data)
+	return c.Render(http.StatusOK, "table-head", data)
 
 }
 
@@ -444,7 +447,7 @@ func (app *Application) EditTransaction(c echo.Context) error {
 
 	data.ActiveTab = c.QueryParam("tab")
 	data.ActiveMonth = c.QueryParam("month")
-	
+
 	userID := app.getUserIdFromSession(c)
 	id := c.FormValue("id")
 	name := c.FormValue("name")
@@ -508,13 +511,13 @@ func (app *Application) EditTransaction(c echo.Context) error {
 	if pages == nil {
 		pageCount := len(pages)
 		data.PageCount = strconv.Itoa(pageCount)
-		return c.Render(http.StatusOK, "table-body", data)
+		return c.Render(http.StatusOK, "table-head", data)
 	}
 
 	data.PageData = pages[0]
 	pageCount := len(pages)
 	data.PageCount = strconv.Itoa(pageCount - 1)
 
-	return c.Render(http.StatusOK, "table-body", data)
+	return c.Render(http.StatusOK, "table-head", data)
 
 }

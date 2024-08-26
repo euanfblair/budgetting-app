@@ -62,6 +62,7 @@ Ensure your application is properly configured to connect to the PostgreSQL data
 
 ## Usage
 
-- **Air**: Use Air for live reloading during development. Refer to the [Air documentation](https://github.com/air-verse/air) for usage instructions.
+In 2 separate Terminal tabs run 
+ - `./tailwindcss -i ui/static/styles/base.css -o ui/static/styles/output.css --watch`
+- `air`
 
-- **Tailwind CLI**: Use Tailwind CLI to build your CSS. Consult the [Tailwind CLI documentation](https://tailwindcss.com/blog/standalone-cli) for details on how to integrate Tailwind CSS into your project.
